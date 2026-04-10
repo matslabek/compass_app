@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compass</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0a0a0f;
+      --surface: #111118;
+      --ring:    #1e1e2e;
+      --needle:  #e8401c;
+      --north:   #e8401c;
+      --gold:    #c9a84c;
+      --text:    #e0ddd5;
+      --muted:   #5a5870;
+      --glow:    rgba(232, 64, 28, 0.35);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* subtle grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 36px;
+      padding: 24px;
+    }
+
+    /* ── TITLE ── */
+    .title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(1.6rem, 5vw, 2.4rem);
+      letter-spacing: 0.25em;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+    .subtitle {
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-top: -30px;
+      text-align: center;
+    }
+
+    /* ── COMPASS SVG CONTAINER ── */
+    .compass-wrap {
+      position: relative;
+      width: min(320px, 80vw);
+      height: min(320px, 80vw);
+    }
+
+    /* outer decorative ring — static */
+    .ring-static {
+      position: absolute;
+      inset: 0;
+    }
+
+    /* rotating compass rose */
+    .rose {
+      position: absolute;
+      inset: 0;
+      transition: transform 0.15s ease-out;
+      transform-origin: center;
+    }
+
+    /* needle always points to target — no rotation, we rotate the rose instead */
+    .needle-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    /* ── STATS ── */
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 32px;
+      text-align: center;
+    }
+    .stat-label {
+      font-size: 0.55rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .stat-value {
+      font-size: 1.2rem;
+      font-weight: 400;
+      color: var(--text);
+    }
+    .stat-value.highlight { color: var(--gold); }
+
+    /* ── STATUS BAR ── */
+    .status {
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      text-align: center;
+      min-height: 1.4em;
+    }
+    .status.error { color: var(--needle); }
+    .status.ok    { color: #6fcf97; }
+
+    /* pulse on acquisition */
+    @keyframes pulse-ring {
+      0%   { opacity: 0.6; transform: scale(1); }
+      50%  { opacity: 1;   transform: scale(1.03); }
+      100% { opacity: 0.6; transform: scale(1); }
+    }
+    .acquiring .compass-wrap { animation: pulse-ring 1.8s ease-in-out infinite; }
+  </style>
+</head>
+<body>
+<div class="wrapper" id="app">
+  <div>
+    <div class="title">Compass</div>
+    <div class="subtitle" id="target-label">— Loading —</div>
+  </div>
+
+  <div class="compass-wrap">
+    <!-- Static outer ring -->
+    <svg class="ring-static" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="160" cy="160" r="156" fill="none" stroke="#1e1e2e" stroke-width="2"/>
+      <circle cx="160" cy="160" r="148" fill="#111118" stroke="#2a2a3a" stroke-width="1"/>
+      <!-- tick marks every 10° -->
+      <g stroke="#2e2e42" stroke-width="1">
+        <script>/* generated below */</script>
+      </g>
+      <!-- cardinal labels -->
+      <text x="160" y="28"  text-anchor="middle" fill="#e8401c" font-family="'Bebas Neue',sans-serif" font-size="18" letter-spacing="2">N</text>
+      <text x="160" y="302" text-anchor="middle" fill="#5a5870" font-family="'Bebas Neue',sans-serif" font-size="16" letter-spacing="2">S</text>
+      <text x="298" y="166" text-anchor="middle" fill="#5a5870" font-family="'Bebas Neue',sans-serif" font-size="16" letter-spacing="2">E</text>
+      <text x="22"  y="166" text-anchor="middle" fill="#5a5870" font-family="'Bebas Neue',sans-serif" font-size="16" letter-spacing="2">W</text>
+    </svg>
+
+    <!-- Rotating rose (rotates opposite to device heading so N stays correct) -->
+    <svg class="rose" id="rose" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+      <!-- degree ticks -->
+      <g id="ticks"></g>
+      <!-- subtle cross lines -->
+      <line x1="160" y1="20" x2="160" y2="300" stroke="#1e1e2e" stroke-width="0.5"/>
+      <line x1="20"  y1="160" x2="300" y2="160" stroke="#1e1e2e" stroke-width="0.5"/>
+      <circle cx="160" cy="160" r="40" fill="none" stroke="#1e1e2e" stroke-width="1"/>
+      <circle cx="160" cy="160" r="4"  fill="#2a2a3a"/>
+    </svg>
+
+    <!-- Needle — always fixed pointing up (target direction is achieved by rotating the rose) -->
+    <svg class="needle-layer" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+      <!-- target arrow -->
+      <polygon id="needle-target" points="160,50 153,160 160,145 167,160"
+               fill="#e8401c" opacity="0.95"
+               filter="url(#glow)"/>
+      <!-- tail -->
+      <polygon id="needle-tail"   points="160,270 153,160 160,175 167,160"
+               fill="#2a2a3a"/>
+      <!-- centre cap -->
+      <circle cx="160" cy="160" r="8" fill="#0a0a0f" stroke="#c9a84c" stroke-width="1.5"/>
+      <circle cx="160" cy="160" r="3" fill="#c9a84c"/>
+      <defs>
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+    </svg>
+  </div>
+
+  <div class="stats">
+    <div>
+      <div class="stat-label">Distance</div>
+      <div class="stat-value highlight" id="stat-dist">—</div>
+    </div>
+    <div>
+      <div class="stat-label">Bearing</div>
+      <div class="stat-value" id="stat-bearing">—</div>
+    </div>
+    <div>
+      <div class="stat-label">Your lat</div>
+      <div class="stat-value" id="stat-lat">—</div>
+    </div>
+    <div>
+      <div class="stat-label">Your lon</div>
+      <div class="stat-value" id="stat-lon">—</div>
+    </div>
+  </div>
+
+  <div class="status" id="status">Acquiring location…</div>
+</div>
+
+<script>
+  // ═══════════════════════════════════════════════════
+  //  ★  CONFIGURE YOUR TARGET HERE  ★
+  // ═══════════════════════════════════════════════════
+  const TARGET = {
+    lat:  28.2722,          // Pico del Teide summit
+    lng:  -16.6408,
+    name: "Pico del Teide"
+  };
+  // ═══════════════════════════════════════════════════
+
+  document.getElementById('target-label').textContent = `→ ${TARGET.name}`;
+
+  // Draw tick marks on the rotating rose
+  const ticksG = document.getElementById('ticks');
+  for (let deg = 0; deg < 360; deg += 5) {
+    const rad = (deg - 90) * Math.PI / 180;
+    const isMajor = deg % 30 === 0;
+    const r1 = 148, r2 = isMajor ? 130 : 138;
+    const x1 = 160 + r1 * Math.cos(rad), y1 = 160 + r1 * Math.sin(rad);
+    const x2 = 160 + r2 * Math.cos(rad), y2 = 160 + r2 * Math.sin(rad);
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+    line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+    line.setAttribute('stroke', isMajor ? '#3a3a55' : '#22222f');
+    line.setAttribute('stroke-width', isMajor ? '1.5' : '0.8');
+    ticksG.appendChild(line);
+  }
+
+  // ── Haversine distance (km) ──
+  function haversine(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2)**2 +
+              Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  // ── Initial bearing from user to target ──
+  function bearing(lat1, lon1, lat2, lon2) {
+    const φ1 = lat1 * Math.PI / 180, φ2 = lat2 * Math.PI / 180;
+    const Δλ = (lon2 - lon1) * Math.PI / 180;
+    const y = Math.sin(Δλ) * Math.cos(φ2);
+    const x = Math.cos(φ1)*Math.sin(φ2) - Math.sin(φ1)*Math.cos(φ2)*Math.cos(Δλ);
+    return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+  }
+
+  function fmt(n, dec=4) { return n.toFixed(dec); }
+  function fmtDist(km) {
+    return km >= 10   ? `${Math.round(km)} km`
+         : km >= 1    ? `${km.toFixed(1)} km`
+                      : `${Math.round(km*1000)} m`;
+  }
+
+  const rose       = document.getElementById('rose');
+  const statusEl   = document.getElementById('status');
+  const distEl     = document.getElementById('stat-dist');
+  const bearingEl  = document.getElementById('stat-bearing');
+  const latEl      = document.getElementById('stat-lat');
+  const lonEl      = document.getElementById('stat-lon');
+  const app        = document.getElementById('app');
+
+  let userLat = null, userLon = null;
+  let deviceHeading = 0; // degrees from north, clockwise
+  let targetBearing = 0;
+
+  function updateRose() {
+    // We rotate the rose so that the fixed needle always points toward the target.
+    // Rose rotates by -(deviceHeading) to keep map-north stable,
+    // then the needle visually points at targetBearing.
+    // Net rose rotation = targetBearing - deviceHeading
+    const rotation = targetBearing - deviceHeading;
+    rose.style.transform = `rotate(${rotation}deg)`;
+  }
+
+  // ── Geolocation ──
+  if (!navigator.geolocation) {
+    statusEl.textContent = 'Geolocation not supported by this browser.';
+    statusEl.className = 'status error';
+  } else {
+    app.classList.add('acquiring');
+    navigator.geolocation.watchPosition(
+      pos => {
+        userLat = pos.coords.latitude;
+        userLon = pos.coords.longitude;
+        app.classList.remove('acquiring');
+
+        const dist = haversine(userLat, userLon, TARGET.lat, TARGET.lng);
+        targetBearing = bearing(userLat, userLon, TARGET.lat, TARGET.lng);
+
+        distEl.textContent    = fmtDist(dist);
+        bearingEl.textContent = `${Math.round(targetBearing)}°`;
+        latEl.textContent     = fmt(userLat);
+        lonEl.textContent     = fmt(userLon);
+        statusEl.textContent  = `Accuracy ±${Math.round(pos.coords.accuracy)} m`;
+        statusEl.className    = 'status ok';
+
+        updateRose();
+      },
+      err => {
+        statusEl.className = 'status error';
+        statusEl.textContent =
+          err.code === 1 ? 'Location permission denied.' :
+          err.code === 2 ? 'Position unavailable.' :
+                           'Location timeout.';
+      },
+      { enableHighAccuracy: true, maximumAge: 5000 }
+    );
+  }
+
+  // ── Device orientation (compass heading) ──
+  function handleOrientation(e) {
+    // webkitCompassHeading = true magnetic north heading on iOS
+    // alpha on Android (360 - alpha for bearing from north)
+    if (e.webkitCompassHeading !== undefined) {
+      deviceHeading = e.webkitCompassHeading;
+    } else if (e.alpha !== null) {
+      deviceHeading = (360 - e.alpha) % 360;
+    }
+    updateRose();
+  }
+
+  if (typeof DeviceOrientationEvent !== 'undefined') {
+    // iOS 13+ requires permission
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+      // Show a tap-to-enable prompt
+      const permBtn = document.createElement('button');
+      permBtn.textContent = 'Enable compass';
+      Object.assign(permBtn.style, {
+        marginTop: '0', padding: '8px 20px',
+        background: 'transparent', border: '1px solid #c9a84c',
+        color: '#c9a84c', fontFamily: 'inherit', fontSize: '0.65rem',
+        letterSpacing: '0.15em', cursor: 'pointer', borderRadius: '2px'
+      });
+      permBtn.onclick = () => {
+        DeviceOrientationEvent.requestPermission().then(state => {
+          if (state === 'granted') {
+            window.addEventListener('deviceorientation', handleOrientation, true);
+            permBtn.remove();
+          }
+        }).catch(console.error);
+      };
+      document.querySelector('.wrapper').appendChild(permBtn);
+    } else {
+      window.addEventListener('deviceorientation', handleOrientation, true);
+    }
+  }
+</script>
+</body>
+</html>
