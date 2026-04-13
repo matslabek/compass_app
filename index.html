@@ -143,7 +143,6 @@
 <div class="wrapper" id="app">
   <div>
     <div class="title">Compass</div>
-    <div class="subtitle" id="target-label">— Loading —</div>
   </div>
 
   <div class="compass-wrap">
@@ -221,13 +220,12 @@
   //  ★  CONFIGURE YOUR TARGET HERE  ★
   // ═══════════════════════════════════════════════════
   const TARGET = {
-    lat:  28.2722,          // Pico del Teide summit
-    lng:  -16.6408,
-    name: "Pico del Teide"
+    lat:  50.064709,          // NH
+    lng:  20.035234,
+    name: "???"
   };
   // ═══════════════════════════════════════════════════
 
-  document.getElementById('target-label').textContent = `→ ${TARGET.name}`;
 
   // Draw tick marks on the rotating rose
   const ticksG = document.getElementById('ticks');
