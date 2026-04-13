@@ -282,12 +282,13 @@
   let targetBearing = 0;
 
   function updateRose() {
-    // We rotate the rose so that the fixed needle always points toward the target.
-    // Rose rotates by -(deviceHeading) to keep map-north stable,
-    // then the needle visually points at targetBearing.
-    // Net rose rotation = targetBearing - deviceHeading
+    // The needle always points up in the SVG.
+    // We need to rotate the entire rose+needle system so the needle points at the target.
+    // First, compensate for device rotation (-deviceHeading keeps map stable)
+    // Then rotate to point at target (targetBearing)
+    // Net rotation: targetBearing - deviceHeading
     const rotation = targetBearing - deviceHeading;
-    rose.style.transform = `rotate(${rotation}deg)`;
+    document.querySelector('.compass-wrap').style.transform = `rotate(${rotation}deg)`;
   }
 
   // ── Geolocation ──
