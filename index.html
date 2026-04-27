@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Compass</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -24,23 +24,31 @@
       height: 100%;
       background: var(--bg);
       color: var(--text);
-      font-family: 'JetBrains Mono', monospace;
+      font-family: 'Press Start 2P', monospace;
+      image-rendering: pixelated;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       overflow: hidden;
       user-select: none;
+      -webkit-font-smoothing: none;
     }
 
-    /* subtle grain overlay */
+    /* scanline overlay */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0, 0, 0, 0.18) 3px,
+        rgba(0, 0, 0, 0.18) 4px
+      );
       pointer-events: none;
-      z-index: 0;
+      z-index: 100;
     }
 
     .wrapper {
@@ -55,19 +63,11 @@
 
     /* ── TITLE ── */
     .title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(1.6rem, 5vw, 2.4rem);
-      letter-spacing: 0.25em;
+      font-size: clamp(0.9rem, 3vw, 1.3rem);
+      letter-spacing: 0.1em;
       color: var(--gold);
       text-transform: uppercase;
-    }
-    .subtitle {
-      font-size: 0.65rem;
-      letter-spacing: 0.18em;
-      color: var(--muted);
-      text-transform: uppercase;
-      margin-top: -30px;
-      text-align: center;
+      text-shadow: 3px 3px 0 rgba(0,0,0,0.6);
     }
 
     /* ── COMPASS SVG CONTAINER ── */
@@ -100,29 +100,26 @@
 
     /* ── STATS ── */
     .stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px 32px;
       text-align: center;
     }
     .stat-label {
-      font-size: 0.55rem;
-      letter-spacing: 0.2em;
+      font-size: 0.5rem;
+      letter-spacing: 0.1em;
       color: var(--muted);
       text-transform: uppercase;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
     }
     .stat-value {
-      font-size: 1.2rem;
-      font-weight: 400;
+      font-size: 0.9rem;
       color: var(--text);
+      text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
     }
     .stat-value.highlight { color: var(--gold); }
 
     /* ── STATUS BAR ── */
     .status {
-      font-size: 0.6rem;
-      letter-spacing: 0.15em;
+      font-size: 0.35rem;
+      letter-spacing: 0.08em;
       color: var(--muted);
       text-align: center;
       min-height: 1.4em;
@@ -147,7 +144,7 @@
 
   <div class="compass-wrap">
     <!-- Static outer ring -->
-    <svg class="ring-static" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+    <svg class="ring-static" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
       <circle cx="160" cy="160" r="156" fill="none" stroke="#1e1e2e" stroke-width="2"/>
       <circle cx="160" cy="160" r="148" fill="#111118" stroke="#2a2a3a" stroke-width="1"/>
       <!-- tick marks every 10° -->
@@ -155,14 +152,14 @@
         <script>/* generated below */</script>
       </g>
       <!-- cardinal labels -->
-      <text x="160" y="28"  text-anchor="middle" fill="#e8401c" font-family="'Bebas Neue',sans-serif" font-size="18" letter-spacing="2">N</text>
-      <text x="160" y="302" text-anchor="middle" fill="#5a5870" font-family="'Bebas Neue',sans-serif" font-size="16" letter-spacing="2">S</text>
-      <text x="298" y="166" text-anchor="middle" fill="#5a5870" font-family="'Bebas Neue',sans-serif" font-size="16" letter-spacing="2">E</text>
-      <text x="22"  y="166" text-anchor="middle" fill="#5a5870" font-family="'Bebas Neue',sans-serif" font-size="16" letter-spacing="2">W</text>
+      <text x="160" y="28"  text-anchor="middle" fill="#e8401c" font-family="'Press Start 2P',monospace" font-size="12">N</text>
+      <text x="160" y="304" text-anchor="middle" fill="#5a5870" font-family="'Press Start 2P',monospace" font-size="12">S</text>
+      <text x="300" y="165" text-anchor="middle" fill="#5a5870" font-family="'Press Start 2P',monospace" font-size="12">E</text>
+      <text x="20"  y="165" text-anchor="middle" fill="#5a5870" font-family="'Press Start 2P',monospace" font-size="12">W</text>
     </svg>
 
     <!-- Rotating rose (rotates opposite to device heading so N stays correct) -->
-    <svg class="rose" id="rose" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+    <svg class="rose" id="rose" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
       <!-- degree ticks -->
       <g id="ticks"></g>
       <!-- subtle cross lines -->
@@ -172,24 +169,27 @@
       <circle cx="160" cy="160" r="4"  fill="#2a2a3a"/>
     </svg>
 
-    <!-- Needle — always fixed pointing up (target direction is achieved by rotating the rose) -->
-    <svg class="needle-layer" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
-      <!-- target arrow -->
-      <polygon id="needle-target" points="160,50 153,160 160,145 167,160"
-               fill="#e8401c" opacity="0.95"
-               filter="url(#glow)"/>
-      <!-- tail -->
-      <polygon id="needle-tail"   points="160,270 153,160 160,175 167,160"
-               fill="#2a2a3a"/>
-      <!-- centre cap -->
-      <circle cx="160" cy="160" r="8" fill="#0a0a0f" stroke="#c9a84c" stroke-width="1.5"/>
-      <circle cx="160" cy="160" r="3" fill="#c9a84c"/>
-      <defs>
-        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="3" result="blur"/>
-          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-      </defs>
+    <!-- Needle — pixel-art arrow, always fixed pointing up -->
+    <svg class="needle-layer" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+      <!-- red arrow head (pointing up) -->
+      <rect x="156" y="52"  width="8"  height="8"  fill="#e8401c"/>
+      <rect x="148" y="60"  width="24" height="8"  fill="#e8401c"/>
+      <rect x="140" y="68"  width="40" height="8"  fill="#e8401c"/>
+      <rect x="132" y="76"  width="56" height="8"  fill="#e8401c"/>
+      <rect x="156" y="84"  width="8"  height="76" fill="#e8401c"/>
+      <!-- dark tail (pointing down) -->
+      <rect x="156" y="160" width="8"  height="76" fill="#3a3a55"/>
+      <rect x="132" y="236" width="56" height="8"  fill="#3a3a55"/>
+      <rect x="140" y="244" width="40" height="8"  fill="#3a3a55"/>
+      <rect x="148" y="252" width="24" height="8"  fill="#3a3a55"/>
+      <rect x="156" y="260" width="8"  height="8"  fill="#3a3a55"/>
+      <!-- pixel centre cap -->
+      <rect x="152" y="152" width="16" height="16" fill="#0a0a0f"/>
+      <rect x="152" y="152" width="16" height="2"  fill="#c9a84c"/>
+      <rect x="152" y="166" width="16" height="2"  fill="#c9a84c"/>
+      <rect x="152" y="152" width="2"  height="16" fill="#c9a84c"/>
+      <rect x="166" y="152" width="2"  height="16" fill="#c9a84c"/>
+      <rect x="157" y="157" width="6"  height="6"  fill="#c9a84c"/>
     </svg>
   </div>
 
@@ -197,18 +197,6 @@
     <div>
       <div class="stat-label">Distance</div>
       <div class="stat-value highlight" id="stat-dist">—</div>
-    </div>
-    <div>
-      <div class="stat-label">Bearing</div>
-      <div class="stat-value" id="stat-bearing">—</div>
-    </div>
-    <div>
-      <div class="stat-label">Your lat</div>
-      <div class="stat-value" id="stat-lat">—</div>
-    </div>
-    <div>
-      <div class="stat-label">Your lon</div>
-      <div class="stat-value" id="stat-lon">—</div>
     </div>
   </div>
 
@@ -262,24 +250,20 @@
     return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
   }
 
-  function fmt(n, dec=4) { return n.toFixed(dec); }
   function fmtDist(km) {
     return km >= 10   ? `${Math.round(km)} km`
          : km >= 1    ? `${km.toFixed(1)} km`
                       : `${Math.round(km*1000)} m`;
   }
 
-  const rose       = document.getElementById('rose');
   const statusEl   = document.getElementById('status');
   const distEl     = document.getElementById('stat-dist');
-  const bearingEl  = document.getElementById('stat-bearing');
-  const latEl      = document.getElementById('stat-lat');
-  const lonEl      = document.getElementById('stat-lon');
   const app        = document.getElementById('app');
 
   let userLat = null, userLon = null;
   let deviceHeading = 0; // degrees from north, clockwise
   let targetBearing = 0;
+  let proximityAlerted = false;
 
   function updateRose() {
     // The needle always points up in the SVG.
@@ -306,12 +290,14 @@
         const dist = haversine(userLat, userLon, TARGET.lat, TARGET.lng);
         targetBearing = bearing(userLat, userLon, TARGET.lat, TARGET.lng);
 
-        distEl.textContent    = fmtDist(dist);
-        bearingEl.textContent = `${Math.round(targetBearing)}°`;
-        latEl.textContent     = fmt(userLat);
-        lonEl.textContent     = fmt(userLon);
-        statusEl.textContent  = `Accuracy ±${Math.round(pos.coords.accuracy)} m`;
-        statusEl.className    = 'status ok';
+        distEl.textContent   = fmtDist(dist);
+        statusEl.textContent = `Accuracy ±${Math.round(pos.coords.accuracy)} m`;
+        statusEl.className   = 'status ok';
+
+        if (!proximityAlerted && dist * 1000 <= 5) {
+          proximityAlerted = true;
+          alert('Hey! Look in the trees!');
+        }
 
         updateRose();
       },
