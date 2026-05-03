@@ -36,6 +36,7 @@
       align-items: center;
       gap: 14px;
       background: #FFF6EE;
+      border: 1.5px solid #F5C9A0;
       border-radius: 16px;
       padding: 12px 16px;
       width: 100%;
@@ -65,13 +66,14 @@
       height: min(300px, 80vw);
     }
 
-    .ring-static, .rose, .needle-layer {
+    .ring-static, .rose, .needle-layer, .cardinal-layer {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
     }
     .needle-layer { pointer-events: none; }
+    .cardinal-layer { overflow: visible; pointer-events: none; }
 
     /* ── DISTANCE ── */
     .distance-value {
@@ -120,7 +122,7 @@
   <div class="alert-card" id="alertCard" style="display:none">
     <img class="alert-cat" src="design/rufus.png" alt="">
     <div>
-      <div class="alert-title">Hej!</div>
+      <div class="alert-title">Hej Monia!</div>
       <div class="alert-desc">Zajrzyj na drzewo!</div>
     </div>
   </div>
@@ -128,14 +130,18 @@
   <!-- Compass -->
   <div class="compass-wrap" id="compassWrap">
 
-    <!-- Static layer: peach ring background + white inner + cardinal labels -->
+    <!-- Static layer: peach ring background + white inner -->
     <svg class="ring-static" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
       <circle cx="160" cy="160" r="155" fill="#F5C9A0"/>
       <circle cx="160" cy="160" r="126" fill="#ffffff"/>
-      <text x="160" y="22"  text-anchor="middle" fill="#E53E3E" font-family="-apple-system,sans-serif" font-size="13" font-weight="700">N</text>
-      <text x="160" y="309" text-anchor="middle" fill="#aaa"     font-family="-apple-system,sans-serif" font-size="13">S</text>
-      <text x="304" y="165" text-anchor="middle" fill="#aaa"     font-family="-apple-system,sans-serif" font-size="13">E</text>
-      <text x="16"  y="165" text-anchor="middle" fill="#aaa"     font-family="-apple-system,sans-serif" font-size="13">W</text>
+    </svg>
+
+    <!-- Cardinal labels — outside the ring, overflow visible so they render beyond SVG bounds -->
+    <svg class="cardinal-layer" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+      <text x="160" y="-8"  text-anchor="middle" dominant-baseline="auto" fill="#E53E3E" font-family="-apple-system,sans-serif" font-size="14" font-weight="700">N</text>
+      <text x="160" y="334" text-anchor="middle" dominant-baseline="auto" fill="#aaa"    font-family="-apple-system,sans-serif" font-size="14">S</text>
+      <text x="334" y="165" text-anchor="middle" dominant-baseline="central"             fill="#aaa"    font-family="-apple-system,sans-serif" font-size="14">E</text>
+      <text x="-14" y="165" text-anchor="middle" dominant-baseline="central"             fill="#aaa"    font-family="-apple-system,sans-serif" font-size="14">W</text>
     </svg>
 
     <!-- Rotating rose: tick marks + degree labels + centre details -->
@@ -152,7 +158,7 @@
     <!-- Needle layer: fixed, points toward target -->
     <svg class="needle-layer" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
       <!-- Needle line -->
-      <line x1="160" y1="160" x2="160" y2="56" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="160" y1="160" x2="160" y2="58" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round"/>
       <!-- Cat circle at tip -->
       <defs>
         <clipPath id="catClip">
@@ -160,7 +166,6 @@
         </clipPath>
       </defs>
       <circle cx="160" cy="34" r="27" fill="#F5C9A0"/>
-      <circle cx="160" cy="34" r="24" fill="white"/>
       <image href="design/rufus.png" x="136" y="10" width="48" height="48"
              clip-path="url(#catClip)" preserveAspectRatio="xMidYMid slice"/>
     </svg>
@@ -214,9 +219,11 @@
       text.setAttribute('y', ty);
       text.setAttribute('text-anchor', 'middle');
       text.setAttribute('dominant-baseline', 'central');
-      text.setAttribute('fill', '#bbb');
+      const isCardinal = deg % 90 === 0;
+      text.setAttribute('fill', isCardinal ? '#999' : '#bbb');
       text.setAttribute('font-family', '-apple-system,sans-serif');
-      text.setAttribute('font-size', '9');
+      text.setAttribute('font-size', isCardinal ? '10' : '9');
+      text.setAttribute('font-weight', isCardinal ? 'bold' : 'normal');
       text.textContent = deg + '°';
       ticksG.appendChild(text);
     }
@@ -278,9 +285,10 @@
 
         distEl.textContent = fmtDist(dist);
 
-        if (!proximityAlerted && dist * 1000 <= 1000) {
+        if (!proximityAlerted && dist * 1000 <= 5) {
           proximityAlerted = true;
           document.getElementById('alertCard').style.display = 'flex';
+          navigator.vibrate?.([400, 200, 400, 200, 800]);
         }
 
         updateRose();
