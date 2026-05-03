@@ -4,203 +4,178 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Compass</title>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    :root {
-      --bg:      #0a0a0f;
-      --surface: #111118;
-      --ring:    #1e1e2e;
-      --needle:  #e8401c;
-      --north:   #e8401c;
-      --gold:    #c9a84c;
-      --text:    #e0ddd5;
-      --muted:   #5a5870;
-      --glow:    rgba(232, 64, 28, 0.35);
-    }
-
     html, body {
       height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Press Start 2P', monospace;
-      image-rendering: pixelated;
+      background: #ffffff;
+      color: #1a1a1a;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       overflow: hidden;
       user-select: none;
-      -webkit-font-smoothing: none;
-    }
-
-    /* scanline overlay */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 3px,
-        rgba(0, 0, 0, 0.18) 3px,
-        rgba(0, 0, 0, 0.18) 4px
-      );
-      pointer-events: none;
-      z-index: 100;
     }
 
     .wrapper {
-      position: relative;
-      z-index: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 36px;
+      gap: 28px;
       padding: 24px;
+      width: 100%;
+      max-width: 420px;
     }
 
-    /* ── TITLE ── */
-    .title {
-      font-size: clamp(0.9rem, 3vw, 1.3rem);
-      letter-spacing: 0.1em;
-      color: var(--gold);
-      text-transform: uppercase;
-      text-shadow: 3px 3px 0 rgba(0,0,0,0.6);
+    /* ── ALERT CARD ── */
+    .alert-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #FFF6EE;
+      border-radius: 16px;
+      padding: 12px 16px;
+      width: 100%;
+    }
+    .alert-cat {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .alert-title {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #E8840C;
+    }
+    .alert-desc {
+      font-size: 0.85rem;
+      color: #888;
+      margin-top: 2px;
     }
 
-    /* ── COMPASS SVG CONTAINER ── */
+    /* ── COMPASS ── */
     .compass-wrap {
       position: relative;
-      width: min(320px, 80vw);
-      height: min(320px, 80vw);
+      width: min(300px, 80vw);
+      height: min(300px, 80vw);
     }
 
-    /* outer decorative ring — static */
-    .ring-static {
+    .ring-static, .rose, .needle-layer {
       position: absolute;
       inset: 0;
+      width: 100%;
+      height: 100%;
     }
+    .needle-layer { pointer-events: none; }
 
-    /* rotating compass rose */
-    .rose {
-      position: absolute;
-      inset: 0;
-      transition: transform 0.15s ease-out;
-      transform-origin: center;
-    }
-
-    /* needle always points to target — no rotation, we rotate the rose instead */
-    .needle-layer {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-    }
-
-    /* ── STATS ── */
-    .stats {
+    /* ── DISTANCE ── */
+    .distance-value {
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: #1a1a1a;
       text-align: center;
+      line-height: 1;
     }
-    .stat-label {
-      font-size: 0.5rem;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-      text-transform: uppercase;
-      margin-bottom: 8px;
-    }
-    .stat-value {
+    .distance-label {
       font-size: 0.9rem;
-      color: var(--text);
-      text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
-    }
-    .stat-value.highlight { color: var(--gold); }
-
-    /* ── STATUS BAR ── */
-    .status {
-      font-size: 0.35rem;
-      letter-spacing: 0.08em;
-      color: var(--muted);
+      color: #888;
       text-align: center;
-      min-height: 1.4em;
+      margin-top: 6px;
     }
-    .status.error { color: var(--needle); }
-    .status.ok    { color: #6fcf97; }
 
-    /* pulse on acquisition */
-    @keyframes pulse-ring {
-      0%   { opacity: 0.6; transform: scale(1); }
-      50%  { opacity: 1;   transform: scale(1.03); }
-      100% { opacity: 0.6; transform: scale(1); }
+    /* ── ACTION BUTTON ── */
+    .action-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 12px;
+      background: white;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: #444;
+      cursor: pointer;
+      width: 100%;
+      justify-content: center;
     }
-    .acquiring .compass-wrap { animation: pulse-ring 1.8s ease-in-out infinite; }
+    .action-btn:active { background: #f5f5f5; }
+
+    @keyframes pulse-opacity {
+      0%, 100% { opacity: 0.7; }
+      50%       { opacity: 1; }
+    }
+    .acquiring .compass-wrap { animation: pulse-opacity 1.8s ease-in-out infinite; }
   </style>
 </head>
 <body>
 <div class="wrapper" id="app">
-  <div>
-    <div class="title">Compass</div>
-  </div>
 
-  <div class="compass-wrap">
-    <!-- Static outer ring -->
-    <svg class="ring-static" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
-      <circle cx="160" cy="160" r="156" fill="none" stroke="#1e1e2e" stroke-width="2"/>
-      <circle cx="160" cy="160" r="148" fill="#111118" stroke="#2a2a3a" stroke-width="1"/>
-      <!-- tick marks every 10° -->
-      <g stroke="#2e2e42" stroke-width="1">
-        <script>/* generated below */</script>
-      </g>
-      <!-- cardinal labels -->
-      <text x="160" y="28"  text-anchor="middle" fill="#e8401c" font-family="'Press Start 2P',monospace" font-size="12">N</text>
-      <text x="160" y="304" text-anchor="middle" fill="#5a5870" font-family="'Press Start 2P',monospace" font-size="12">S</text>
-      <text x="300" y="165" text-anchor="middle" fill="#5a5870" font-family="'Press Start 2P',monospace" font-size="12">E</text>
-      <text x="20"  y="165" text-anchor="middle" fill="#5a5870" font-family="'Press Start 2P',monospace" font-size="12">W</text>
-    </svg>
-
-    <!-- Rotating rose (rotates opposite to device heading so N stays correct) -->
-    <svg class="rose" id="rose" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
-      <!-- degree ticks -->
-      <g id="ticks"></g>
-      <!-- subtle cross lines -->
-      <line x1="160" y1="20" x2="160" y2="300" stroke="#1e1e2e" stroke-width="0.5"/>
-      <line x1="20"  y1="160" x2="300" y2="160" stroke="#1e1e2e" stroke-width="0.5"/>
-      <circle cx="160" cy="160" r="40" fill="none" stroke="#1e1e2e" stroke-width="1"/>
-      <circle cx="160" cy="160" r="4"  fill="#2a2a3a"/>
-    </svg>
-
-    <!-- Needle — pixel-art arrow, always fixed pointing up -->
-    <svg class="needle-layer" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
-      <!-- red arrow head (pointing up) -->
-      <rect x="156" y="52"  width="8"  height="8"  fill="#e8401c"/>
-      <rect x="148" y="60"  width="24" height="8"  fill="#e8401c"/>
-      <rect x="140" y="68"  width="40" height="8"  fill="#e8401c"/>
-      <rect x="132" y="76"  width="56" height="8"  fill="#e8401c"/>
-      <rect x="156" y="84"  width="8"  height="76" fill="#e8401c"/>
-      <!-- dark tail (pointing down) -->
-      <rect x="156" y="160" width="8"  height="76" fill="#3a3a55"/>
-      <rect x="132" y="236" width="56" height="8"  fill="#3a3a55"/>
-      <rect x="140" y="244" width="40" height="8"  fill="#3a3a55"/>
-      <rect x="148" y="252" width="24" height="8"  fill="#3a3a55"/>
-      <rect x="156" y="260" width="8"  height="8"  fill="#3a3a55"/>
-      <!-- pixel centre cap -->
-      <rect x="152" y="152" width="16" height="16" fill="#0a0a0f"/>
-      <rect x="152" y="152" width="16" height="2"  fill="#c9a84c"/>
-      <rect x="152" y="166" width="16" height="2"  fill="#c9a84c"/>
-      <rect x="152" y="152" width="2"  height="16" fill="#c9a84c"/>
-      <rect x="166" y="152" width="2"  height="16" fill="#c9a84c"/>
-      <rect x="157" y="157" width="6"  height="6"  fill="#c9a84c"/>
-    </svg>
-  </div>
-
-  <div class="stats">
+  <!-- Proximity alert card — hidden until within 5 m -->
+  <div class="alert-card" id="alertCard" style="display:none">
+    <img class="alert-cat" src="design/img.png" alt="">
     <div>
-      <div class="stat-label">Distance</div>
-      <div class="stat-value highlight" id="stat-dist">—</div>
+      <div class="alert-title">Hej!</div>
+      <div class="alert-desc">Zajrzyj na drzewo!</div>
     </div>
   </div>
 
-  <div class="status" id="status">Acquiring location…</div>
+  <!-- Compass -->
+  <div class="compass-wrap" id="compassWrap">
+
+    <!-- Static layer: peach ring background + white inner + cardinal labels -->
+    <svg class="ring-static" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="160" cy="160" r="155" fill="#F5C9A0"/>
+      <circle cx="160" cy="160" r="126" fill="#ffffff"/>
+      <text x="160" y="22"  text-anchor="middle" fill="#E53E3E" font-family="-apple-system,sans-serif" font-size="13" font-weight="700">N</text>
+      <text x="160" y="309" text-anchor="middle" fill="#aaa"     font-family="-apple-system,sans-serif" font-size="13">S</text>
+      <text x="304" y="165" text-anchor="middle" fill="#aaa"     font-family="-apple-system,sans-serif" font-size="13">E</text>
+      <text x="16"  y="165" text-anchor="middle" fill="#aaa"     font-family="-apple-system,sans-serif" font-size="13">W</text>
+    </svg>
+
+    <!-- Rotating rose: tick marks + degree labels + centre details -->
+    <svg class="rose" id="rose" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+      <g id="ticks"></g>
+      <!-- Faint cross lines -->
+      <line x1="160" y1="34"  x2="160" y2="286" stroke="#ececec" stroke-width="1"/>
+      <line x1="34"  y1="160" x2="286" y2="160" stroke="#ececec" stroke-width="1"/>
+      <!-- Centre glow -->
+      <circle cx="160" cy="160" r="20" fill="#F5C9A0" opacity="0.5"/>
+      <circle cx="160" cy="160" r="5"  fill="#E8840C"/>
+    </svg>
+
+    <!-- Needle layer: fixed, points toward target -->
+    <svg class="needle-layer" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+      <!-- Needle line -->
+      <line x1="160" y1="160" x2="160" y2="56" stroke="#1a1a1a" stroke-width="2.5" stroke-linecap="round"/>
+      <!-- Cat circle at tip -->
+      <defs>
+        <clipPath id="catClip">
+          <circle cx="160" cy="34" r="24"/>
+        </clipPath>
+      </defs>
+      <circle cx="160" cy="34" r="27" fill="#F5C9A0"/>
+      <circle cx="160" cy="34" r="24" fill="white"/>
+      <image href="design/img.png" x="136" y="10" width="48" height="48"
+             clip-path="url(#catClip)" preserveAspectRatio="xMidYMid slice"/>
+    </svg>
+
+  </div>
+
+  <!-- Distance display -->
+  <div>
+    <div class="distance-value" id="stat-dist">—</div>
+    <div class="distance-label">dzieli Cię od celu</div>
+  </div>
+
+  <!-- Action button (iOS orientation permission, hidden on Android) -->
+  <button class="action-btn" id="actionBtn" style="display:none">✛ Reaguj na ruch</button>
+
 </div>
 
 <script>
@@ -208,27 +183,43 @@
   //  ★  CONFIGURE YOUR TARGET HERE  ★
   // ═══════════════════════════════════════════════════
   const TARGET = {
-    lat:  50.064534,          // NH
+    lat:  50.064534,
     lng:  20.035051,
     name: "???"
   };
   // ═══════════════════════════════════════════════════
 
-
-  // Draw tick marks on the rotating rose
+  // Draw tick marks and degree labels on the rotating rose
   const ticksG = document.getElementById('ticks');
-  for (let deg = 0; deg < 360; deg += 5) {
+  for (let deg = 0; deg < 360; deg += 10) {
     const rad = (deg - 90) * Math.PI / 180;
     const isMajor = deg % 30 === 0;
-    const r1 = 148, r2 = isMajor ? 130 : 138;
-    const x1 = 160 + r1 * Math.cos(rad), y1 = 160 + r1 * Math.sin(rad);
-    const x2 = 160 + r2 * Math.cos(rad), y2 = 160 + r2 * Math.sin(rad);
-    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    const rOuter = 152;
+    const rInner = isMajor ? 133 : 141;
+    const x1 = 160 + rOuter * Math.cos(rad), y1 = 160 + rOuter * Math.sin(rad);
+    const x2 = 160 + rInner * Math.cos(rad), y2 = 160 + rInner * Math.sin(rad);
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     line.setAttribute('x1', x1); line.setAttribute('y1', y1);
     line.setAttribute('x2', x2); line.setAttribute('y2', y2);
-    line.setAttribute('stroke', isMajor ? '#3a3a55' : '#22222f');
-    line.setAttribute('stroke-width', isMajor ? '1.5' : '0.8');
+    line.setAttribute('stroke', isMajor ? '#c0a080' : '#d8c0a0');
+    line.setAttribute('stroke-width', isMajor ? '1.5' : '1');
     ticksG.appendChild(line);
+
+    if (isMajor) {
+      const rLabel = 120;
+      const tx = 160 + rLabel * Math.cos(rad);
+      const ty = 160 + rLabel * Math.sin(rad);
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', tx);
+      text.setAttribute('y', ty);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('dominant-baseline', 'central');
+      text.setAttribute('fill', '#bbb');
+      text.setAttribute('font-family', '-apple-system,sans-serif');
+      text.setAttribute('font-size', '9');
+      text.textContent = deg + '°';
+      ticksG.appendChild(text);
+    }
   }
 
   // ── Haversine distance (km) ──
@@ -251,34 +242,29 @@
   }
 
   function fmtDist(km) {
-    return km >= 10   ? `${Math.round(km)} km`
-         : km >= 1    ? `${km.toFixed(1)} km`
-                      : `${Math.round(km*1000)} m`;
+    return km >= 10  ? `${Math.round(km)} km`
+         : km >= 1   ? `${km.toFixed(1)} km`
+                     : `${Math.round(km*1000)} m`;
   }
 
-  const statusEl   = document.getElementById('status');
-  const distEl     = document.getElementById('stat-dist');
-  const app        = document.getElementById('app');
+  const distEl    = document.getElementById('stat-dist');
+  const app       = document.getElementById('app');
+  const compassWrap = document.getElementById('compassWrap');
 
   let userLat = null, userLon = null;
-  let deviceHeading = 0; // degrees from north, clockwise
+  let deviceHeading = 0;
   let targetBearing = 0;
   let proximityAlerted = false;
 
   function updateRose() {
-    // The needle always points up in the SVG.
-    // We need to rotate the entire rose+needle system so the needle points at the target.
-    // First, compensate for device rotation (-deviceHeading keeps map stable)
-    // Then rotate to point at target (targetBearing)
-    // Net rotation: targetBearing - deviceHeading
     const rotation = targetBearing - deviceHeading;
-    document.querySelector('.compass-wrap').style.transform = `rotate(${rotation}deg)`;
+    compassWrap.style.transform = `rotate(${rotation}deg)`;
+    compassWrap.style.transition = 'transform 0.15s ease-out';
   }
 
   // ── Geolocation ──
   if (!navigator.geolocation) {
-    statusEl.textContent = 'Geolocation not supported by this browser.';
-    statusEl.className = 'status error';
+    // geolocation unavailable — nothing to show
   } else {
     app.classList.add('acquiring');
     navigator.geolocation.watchPosition(
@@ -290,32 +276,22 @@
         const dist = haversine(userLat, userLon, TARGET.lat, TARGET.lng);
         targetBearing = bearing(userLat, userLon, TARGET.lat, TARGET.lng);
 
-        distEl.textContent   = fmtDist(dist);
-        statusEl.textContent = `Accuracy ±${Math.round(pos.coords.accuracy)} m`;
-        statusEl.className   = 'status ok';
+        distEl.textContent = fmtDist(dist);
 
         if (!proximityAlerted && dist * 1000 <= 5) {
           proximityAlerted = true;
-          alert('Hey! Look in the tree!');
+          document.getElementById('alertCard').style.display = 'flex';
         }
 
         updateRose();
       },
-      err => {
-        statusEl.className = 'status error';
-        statusEl.textContent =
-          err.code === 1 ? 'Location permission denied.' :
-          err.code === 2 ? 'Position unavailable.' :
-                           'Location timeout.';
-      },
+      () => {},
       { enableHighAccuracy: true, maximumAge: 5000 }
     );
   }
 
-  // ── Device orientation (compass heading) ──
+  // ── Device orientation ──
   function handleOrientation(e) {
-    // webkitCompassHeading = true magnetic north heading on iOS
-    // alpha on Android (360 - alpha for bearing from north)
     if (e.webkitCompassHeading !== undefined) {
       deviceHeading = e.webkitCompassHeading;
     } else if (e.alpha !== null) {
@@ -325,26 +301,18 @@
   }
 
   if (typeof DeviceOrientationEvent !== 'undefined') {
-    // iOS 13+ requires permission
     if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-      // Show a tap-to-enable prompt
-      const permBtn = document.createElement('button');
-      permBtn.textContent = 'Enable compass';
-      Object.assign(permBtn.style, {
-        marginTop: '0', padding: '8px 20px',
-        background: 'transparent', border: '1px solid #c9a84c',
-        color: '#c9a84c', fontFamily: 'inherit', fontSize: '0.65rem',
-        letterSpacing: '0.15em', cursor: 'pointer', borderRadius: '2px'
-      });
-      permBtn.onclick = () => {
+      // iOS 13+ — show the action button
+      const btn = document.getElementById('actionBtn');
+      btn.style.display = '';
+      btn.onclick = () => {
         DeviceOrientationEvent.requestPermission().then(state => {
           if (state === 'granted') {
             window.addEventListener('deviceorientation', handleOrientation, true);
-            permBtn.remove();
+            btn.style.display = 'none';
           }
         }).catch(console.error);
       };
-      document.querySelector('.wrapper').appendChild(permBtn);
     } else {
       window.addEventListener('deviceorientation', handleOrientation, true);
     }
