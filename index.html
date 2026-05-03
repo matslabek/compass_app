@@ -278,7 +278,7 @@
 
         distEl.textContent = fmtDist(dist);
 
-        if (!proximityAlerted && dist * 1000 <= 5) {
+        if (!proximityAlerted && dist * 1000 <= 1000) {
           proximityAlerted = true;
           document.getElementById('alertCard').style.display = 'flex';
         }
